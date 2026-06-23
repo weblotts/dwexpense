@@ -23,7 +23,13 @@ const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/expense-tr
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:4200';
 
 const app = express();
-app.use(cors({ origin: CLIENT_URL, credentials: true }));
+const allowedOrigins = [
+  CLIENT_URL,
+  'http://localhost:4200',
+  'http://localhost:5173',
+  /\.vercel\.app$/,
+];
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
 
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
