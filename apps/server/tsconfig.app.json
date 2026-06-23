@@ -3,7 +3,7 @@
   "compilerOptions": {
     "module": "CommonJS",
     "moduleResolution": "node",
-    "outDir": "../../dist/apps/server",
+    "outDir": "../../dist/server-out",
     "noEmit": false,
     "types": ["node"]
   },

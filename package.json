@@ -12,7 +12,7 @@
     "dev:server": "nx serve server",
     "dev": "concurrently -n server,client -c blue,green \"npm run dev:server\" \"npm run dev:client\"",
     "build": "npx nx build client && npx nx build server",
-    "start": "node dist/apps/server/main.js",
+    "start": "node dist/server-out/apps/server/src/main.js",
     "seed": "nx run server:seed"
   },
   "devDependencies": {

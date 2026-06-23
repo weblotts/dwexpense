@@ -3,7 +3,7 @@ services:
     name: dwexpense-server
     runtime: node
     buildCommand: npm install && npx nx build server
-    startCommand: node dist/apps/server/main.js
+    startCommand: node dist/server-out/apps/server/src/main.js
     envVars:
       - key: NODE_ENV
         value: production
