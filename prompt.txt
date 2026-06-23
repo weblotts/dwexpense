@@ -1,0 +1,227 @@
+ ====================================================
+  EXPENSE BUCKET TRACKER — AI GENERATION GUIDE
+====================================================
+Author: Davies Wabuluka
+Date: June 2026
+----------------------------------------------------
+
+OVERVIEW
+--------
+Build a full-stack personal expense bucket tracker.
+Single user, no auth. Mobile-friendly UI.
+Track daily spending against monthly budget limits per category.
+
+
+----------------------------------------------------
+TECH STACK
+----------------------------------------------------
+Frontend  : React 18 + TypeScript (Vite)
+Backend   : Express + TypeScript
+Database  : MongoDB (Mongoose)
+Data Layer: TanStack Query (React Query v5)
+Monorepo  : Nx workspace
+Styling   : Tailwind CSS
+HTTP      : Axios
+
+
+----------------------------------------------------
+PROJECT STRUCTURE
+----------------------------------------------------
+Generate an Nx monorepo with the following layout:
+
+  apps/
+    client/         → React + Vite frontend
+    server/         → Express + TypeScript backend
+  libs/
+    types/          → Shared TypeScript interfaces (Expense, Bucket)
+
+Root config files: nx.json, tsconfig.base.json, package.json
+
+
+----------------------------------------------------
+MONGODB SCHEMAS (Mongoose)
+----------------------------------------------------
+
+Bucket:
+  - _id          : ObjectId
+  - name         : string (required)
+  - monthlyLimit : number (required)
+  - color        : string (hex, e.g. "#3B82F6")
+  - createdAt    : Date
+
+Expense:
+  - _id      : ObjectId
+  - bucketId : ObjectId (ref: Bucket, required)
+  - amount   : number (required, positive)
+  - note     : string (optional)
+  - date     : Date (required, defaults to today)
+  - createdAt: Date
+
+
+----------------------------------------------------
+SEED DATA — PREDEFINED BUCKETS
+----------------------------------------------------
+Seed these buckets on server start if DB is empty:
+
+  { name: "Groceries",       monthlyLimit: 200.00,  color: "#22C55E" }
+  { name: "Gas",             monthlyLimit: 40.00,   color: "#F97316" }
+  { name: "Car Insurance",   monthlyLimit: 120.00,  color: "#3B82F6" }
+  { name: "Phone",           monthlyLimit: 37.00,   color: "#A855F7" }
+  { name: "Internet",        monthlyLimit: 62.38,   color: "#06B6D4" }
+  { name: "Health Insurance",monthlyLimit: 100.00,  color: "#EC4899" }
+  { name: "Miscellaneous",   monthlyLimit: 50.00,   color: "#EAB308" }
+  { name: "Buffer",          monthlyLimit: 293.62,  color: "#64748B" }
+
+
+----------------------------------------------------
+API ROUTES (Express)
+----------------------------------------------------
+Base URL: /api
+
+  GET    /api/buckets
+    → Return all buckets with current month's total spent
+    → Response: [{ ...bucket, spent: number, remaining: number }]
+
+  GET    /api/expenses
+    → Query params: bucketId (optional), month (YYYY-MM, optional, defaults to current)
+    → Return filtered expense list sorted by date desc
+
+  POST   /api/expenses
+    → Body: { bucketId, amount, note?, date? }
+    → Validate: amount > 0, bucketId exists
+    → Return created expense
+
+  DELETE /api/expenses/:id
+    → Delete expense by ID
+    → Return { success: true }
+
+  PATCH  /api/buckets/:id
+    → Body: { monthlyLimit?, name?, color? }
+    → Update bucket fields
+    → Return updated bucket
+
+All routes return JSON. Use consistent error format:
+  { error: string, status: number }
+
+
+----------------------------------------------------
+FRONTEND PAGES & COMPONENTS
+----------------------------------------------------
+
+Pages:
+  / (Dashboard)     → Overview of all buckets + summary bar
+  /bucket/:id       → Single bucket detail + expense history
+  /history          → Full expense log across all buckets
+
+Components to build:
+
+  <SummaryBar />
+    - Total monthly budget vs total spent
+    - Overall progress bar (turns red if over budget)
+    - e.g. "Spent $643.50 of $902.38 this month"
+
+  <BucketCard />
+    - Bucket name, color indicator
+    - Progress bar: spent / limit
+    - Remaining amount (red if over limit)
+    - Quick-add button
+
+  <ExpenseForm />
+    - Fields: amount (number), bucket (select), note (text), date (date picker, default today)
+    - Submit with Enter key support
+    - Optimistic update via TanStack Query
+
+  <ExpenseList />
+    - List of expenses for a bucket or all buckets
+    - Shows: date, amount, note, delete button
+    - Grouped by date
+
+  <BucketEditModal />
+    - Edit bucket name, monthly limit, color
+    - Triggered from BucketCard settings icon
+
+TanStack Query hooks to implement:
+  useBuckets()          → GET /api/buckets
+  useExpenses(filters)  → GET /api/expenses
+  useAddExpense()       → POST /api/expenses (mutation)
+  useDeleteExpense()    → DELETE /api/expenses/:id (mutation)
+  useUpdateBucket()     → PATCH /api/buckets/:id (mutation)
+
+
+----------------------------------------------------
+MONTHLY RESET LOGIC
+----------------------------------------------------
+- Do NOT delete old expenses — keep full history
+- "Current month" is always filtered by year+month on the server
+- On GET /api/buckets, spent = SUM of expenses WHERE date is in current month
+- User can view past months via the /history page with a month selector
+
+
+----------------------------------------------------
+UI / UX REQUIREMENTS
+----------------------------------------------------
+- Mobile-first layout (works well on phone screen)
+- Tailwind CSS for all styling
+- Dark mode support (Tailwind dark: classes)
+- Progress bars color:
+    green  → under 75% of limit
+    amber  → 75–99% of limit
+    red    → at or over limit
+- Smooth transitions on progress bar fill
+- Toast notifications on expense added / deleted (use react-hot-toast)
+- Loading skeletons while data fetches
+- Empty state message when no expenses logged yet
+
+
+----------------------------------------------------
+ENVIRONMENT VARIABLES
+----------------------------------------------------
+Server (.env):
+  PORT=5000
+  MONGO_URI=mongodb://localhost:27017/expense-tracker
+
+Client (.env):
+  VITE_API_URL=http://localhost:5000
+
+
+----------------------------------------------------
+SCRIPTS (package.json root)
+----------------------------------------------------
+  "dev:client"  → nx serve client
+  "dev:server"  → nx serve server
+  "dev"         → run both concurrently
+  "build"       → nx build client && nx build server
+
+
+----------------------------------------------------
+DEPLOYMENT TARGETS (optional)
+----------------------------------------------------
+  Frontend : Vercel (connect /apps/client)
+  Backend  : Render or Railway (free tier)
+  Database : MongoDB Atlas (free M0 cluster)
+
+
+----------------------------------------------------
+GENERATION ORDER — FOLLOW THIS SEQUENCE
+----------------------------------------------------
+Step 1: Scaffold Nx monorepo + install all dependencies
+Step 2: Create shared types in libs/types (Bucket, Expense interfaces)
+Step 3: Build server — mongoose models → seed script → routes → server.ts
+Step 4: Build client — TanStack Query setup → hooks → components → pages
+Step 5: Wire up env variables and test all API routes
+Step 6: Polish UI — progress bar colors, toasts, empty states, dark mode
+
+
+----------------------------------------------------
+NOTES
+----------------------------------------------------
+- No authentication needed. Single user app.
+- Keep it simple — no Redux, no complex state. TanStack Query handles all server state.
+- Use React Router v6 for navigation.
+- Prefer functional components and hooks throughout.
+- All monetary values stored as numbers (float) in MongoDB.
+- Date filtering on the server should use start/end of month boundaries.
+
+====================================================
+END OF GUIDE
+====================================================

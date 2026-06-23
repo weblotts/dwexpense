@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: dwexpense-server
+    runtime: node
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: MONGO_URI
+        sync: false   # set this in the Render dashboard
+      - key: JWT_SECRET
+        sync: false   # set this in the Render dashboard
+      - key: CLIENT_URL
+        sync: false   # set to your Vercel URL after deploying frontend
