@@ -237,7 +237,7 @@ summaryRouter.get('/top-items', asyncHandler(async (req: Request, res: Response)
         as: 'bucket',
       },
     },
-    { $unwind: { path: '$bucket', preserveNullAndEmpty: true } },
+    { $unwind: { path: '$bucket', preserveNullAndEmptyArrays: true } },
     {
       $project: {
         amount: 1,
