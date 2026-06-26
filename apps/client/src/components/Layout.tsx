@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ChartPie, Repeat2, ClockFading, BarChart2, SlidersHorizontal, Sun, Moon, LogOut, Settings, PiggyBank, TrendingUp, ShoppingCart } from 'lucide-react';
 import { useTheme } from '../hooks/useTheme';
@@ -21,12 +21,25 @@ export function Layout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [menuOpen]);
 
   function handleLogout() { logout(); navigate('/login'); }
 
@@ -86,10 +99,13 @@ export function Layout({ children }: { children: ReactNode }) {
           </button>
 
           {user && (
-            <div className="relative group">
-              <button className="flex items-center gap-2 rounded-lg px-2 py-1 transition-colors"
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={() => setMenuOpen((v) => !v)}
+                className="flex items-center gap-2 rounded-lg px-2 py-1 transition-colors"
                 onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--color-surface-2)'}
-                onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = ''}>
+                onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = ''}
+              >
                 <div className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white select-none"
                   style={{ background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)' }}>
                   {(user.name || user.email).slice(0, 1).toUpperCase()}
@@ -98,25 +114,28 @@ export function Layout({ children }: { children: ReactNode }) {
                   {user.name || user.email}
                 </span>
               </button>
-              <div className="invisible group-focus-within:visible absolute right-0 top-full mt-1 w-48 rounded-xl p-1 z-50"
-                style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)', boxShadow: '0 8px 32px rgb(0 0 0 / 0.18)' }}>
-                <p className="px-3 py-1.5 text-xs truncate" style={{ color: 'var(--color-text-faint)' }}>{user.email}</p>
-                <div className="my-1" style={{ borderTop: '1px solid var(--color-border)' }} />
-                <Link to="/settings"
-                  className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors"
-                  style={{ color: 'var(--color-text-muted)' }}
-                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--color-surface-2)'}
-                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = ''}>
-                  <Settings size={13} /> Settings
-                </Link>
-                <button onClick={handleLogout}
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors"
-                  style={{ color: 'var(--color-error)' }}
-                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(220,38,38,0.08)'}
-                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = ''}>
-                  <LogOut size={13} /> Sign out
-                </button>
-              </div>
+              {menuOpen && (
+                <div className="absolute right-0 top-full mt-1 w-48 rounded-xl p-1 z-50"
+                  style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)', boxShadow: '0 8px 32px rgb(0 0 0 / 0.18)' }}>
+                  <p className="px-3 py-1.5 text-xs truncate" style={{ color: 'var(--color-text-faint)' }}>{user.email}</p>
+                  <div className="my-1" style={{ borderTop: '1px solid var(--color-border)' }} />
+                  <Link to="/settings"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors"
+                    style={{ color: 'var(--color-text-muted)' }}
+                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--color-surface-2)'}
+                    onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = ''}>
+                    <Settings size={13} /> Settings
+                  </Link>
+                  <button onClick={handleLogout}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors"
+                    style={{ color: 'var(--color-error)' }}
+                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(220,38,38,0.08)'}
+                    onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = ''}>
+                    <LogOut size={13} /> Sign out
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
