@@ -4,14 +4,19 @@ import { ChartPie, Repeat2, ClockFading, BarChart2, SlidersHorizontal, Sun, Moon
 import { useTheme } from '../hooks/useTheme';
 import { useAuth } from '../context/AuthContext';
 
+// Main navbar — keep this short
 const nav = [
-  { to: '/',              label: 'Dashboard', icon: ChartPie },
+  { to: '/',        label: 'Dashboard', icon: ChartPie },
+  { to: '/history', label: 'History',   icon: ClockFading },
+  { to: '/reports', label: 'Reports',   icon: BarChart2 },
+  { to: '/shopping', label: 'Shopping', icon: ShoppingCart },
+];
+
+// Secondary links that live in the profile dropdown
+const secondaryNav = [
   { to: '/recurring',     label: 'Recurring',  icon: Repeat2 },
-  { to: '/history',       label: 'History',    icon: ClockFading },
-  { to: '/reports',       label: 'Reports',    icon: BarChart2 },
   { to: '/savings-goals', label: 'Goals',      icon: PiggyBank },
   { to: '/net-worth',     label: 'Net Worth',  icon: TrendingUp },
-  { to: '/shopping',      label: 'Shopping',   icon: ShoppingCart },
   { to: '/settings',      label: 'Settings',   icon: SlidersHorizontal },
 ];
 
@@ -115,18 +120,21 @@ export function Layout({ children }: { children: ReactNode }) {
                 </span>
               </button>
               {menuOpen && (
-                <div className="absolute right-0 top-full mt-1 w-48 rounded-xl p-1 z-50"
+                <div className="absolute right-0 top-full mt-1 w-52 rounded-xl p-1 z-50"
                   style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)', boxShadow: '0 8px 32px rgb(0 0 0 / 0.18)' }}>
                   <p className="px-3 py-1.5 text-xs truncate" style={{ color: 'var(--color-text-faint)' }}>{user.email}</p>
                   <div className="my-1" style={{ borderTop: '1px solid var(--color-border)' }} />
-                  <Link to="/settings"
-                    onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors"
-                    style={{ color: 'var(--color-text-muted)' }}
-                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--color-surface-2)'}
-                    onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = ''}>
-                    <Settings size={13} /> Settings
-                  </Link>
+                  {secondaryNav.map(({ to, label, icon: Icon }) => (
+                    <Link key={to} to={to}
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors"
+                      style={{ color: 'var(--color-text-muted)' }}
+                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--color-surface-2)'}
+                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.backgroundColor = ''}>
+                      <Icon size={13} /> {label}
+                    </Link>
+                  ))}
+                  <div className="my-1" style={{ borderTop: '1px solid var(--color-border)' }} />
                   <button onClick={handleLogout}
                     className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors"
                     style={{ color: 'var(--color-error)' }}

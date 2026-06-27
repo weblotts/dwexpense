@@ -9,6 +9,7 @@ export interface User {
   savingsGoal: number;
   theme?: 'light' | 'dark';
   currency?: string;
+  googleId?: string;
   createdAt: string;
 }
 
