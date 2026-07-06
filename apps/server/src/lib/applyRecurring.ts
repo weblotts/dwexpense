@@ -48,7 +48,7 @@ export async function applyRecurringForUser(
         userId,
         bucketId: rule.bucketId,
         amount: rule.amount,
-        note: rule.note || 'Recurring',
+        recurringId: rule._id,
         date: { $gte: monthStart, $lt: monthEnd },
       });
       if (existing) {
@@ -60,8 +60,9 @@ export async function applyRecurringForUser(
         userId,
         bucketId: rule.bucketId,
         amount: rule.amount,
-        note: rule.note || 'Recurring',
+        note: rule.note || rule.serviceName || 'Recurring',
         date: now,
+        recurringId: rule._id,
       });
       createdExpenses++;
     } else if (rule.type === 'income') {

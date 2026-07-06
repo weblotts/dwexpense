@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { Bucket } from '../models/Bucket';
 import { Expense } from '../models/Expense';
+import { Recurring } from '../models/Recurring';
 import { monthRange } from '../lib/dates';
 import { asyncHandler } from '../lib/asyncHandler';
 import { AuthedRequest } from '../lib/auth';
@@ -35,7 +36,10 @@ expensesRouter.get('/', asyncHandler(async (req: Request, res: Response) => {
     filter.bucketId = bucketId;
   }
 
-  const expenses = await Expense.find(filter).sort({ date: -1, createdAt: -1 }).lean();
+  const expenses = await Expense.find(filter)
+    .sort({ date: -1, createdAt: -1 })
+    .populate('recurringId', 'serviceName frequency')
+    .lean();
   res.json(expenses);
 }));
 

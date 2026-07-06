@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Search, TrendingDown, TrendingUp, Trash2, Download, CheckSquare, Square } from 'lucide-react';
+import { Search, TrendingDown, TrendingUp, Trash2, Download, CheckSquare, Square, Repeat2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useBuckets } from '../hooks/useBuckets';
 import { useExpenses } from '../hooks/useExpenses';
@@ -312,11 +312,14 @@ function ExpenseRow({ expense, bucket, onDelete, selectMode, selected, onToggleS
   expense: Expense; bucket: BucketWithSpend | undefined;
   onDelete: () => void; selectMode: boolean; selected: boolean; onToggleSelect: () => void;
 }) {
+  const recurring = expense.recurringId && typeof expense.recurringId === 'object'
+    ? expense.recurringId
+    : null;
+  const title = recurring?.serviceName || expense.note;
+
   return (
     <li className="flex items-center gap-3 px-4 py-3"
-      style={{ borderBottom: '1px solid var(--color-border-light)' }}
-      // remove bottom border on last item via CSS would need a wrapper; this is fine
-    >
+      style={{ borderBottom: '1px solid var(--color-border-light)' }}>
       {selectMode && (
         <button onClick={onToggleSelect} className="flex-shrink-0 transition"
           style={{ color: selected ? 'var(--color-primary)' : 'var(--color-text-faint)' }}>
@@ -325,13 +328,29 @@ function ExpenseRow({ expense, bucket, onDelete, selectMode, selected, onToggleS
       )}
       <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full"
         style={{ backgroundColor: bucket ? `${bucket.color}22` : 'var(--color-surface-2)' }}>
-        <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: bucket?.color ?? 'var(--color-text-faint)' }} />
+        {recurring
+          ? <Repeat2 size={14} style={{ color: bucket?.color ?? 'var(--color-text-faint)' }} />
+          : <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: bucket?.color ?? 'var(--color-text-faint)' }} />
+        }
       </div>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium" style={{ color: 'var(--color-text)' }}>
-          {expense.note || <span style={{ color: 'var(--color-text-faint)', fontStyle: 'italic' }}>No note</span>}
+          {title || <span style={{ color: 'var(--color-text-faint)', fontStyle: 'italic' }}>No note</span>}
         </p>
-        {bucket && <p className="text-xs" style={{ color: 'var(--color-text-faint)' }}>{bucket.name}</p>}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {bucket && (
+            <span className="text-xs" style={{ color: 'var(--color-text-faint)' }}>{bucket.name}</span>
+          )}
+          {recurring && (
+            <span
+              className="inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-xs font-medium"
+              style={{ backgroundColor: 'rgba(99,102,241,0.1)', color: '#6366f1' }}
+            >
+              <Repeat2 size={9} />
+              {recurring.frequency ? recurring.frequency.charAt(0).toUpperCase() + recurring.frequency.slice(1) : 'Recurring'}
+            </span>
+          )}
+        </div>
       </div>
       <span className="font-semibold" style={{ color: 'var(--color-text)' }}>{money(expense.amount)}</span>
       {!selectMode && (

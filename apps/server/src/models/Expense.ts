@@ -8,6 +8,7 @@ export interface ExpenseDoc extends Document<Types.ObjectId> {
   date: Date;
   createdAt: Date;
   deletedAt?: Date;
+  recurringId?: Types.ObjectId;
 }
 
 const expenseSchema = new Schema<ExpenseDoc>({
@@ -18,6 +19,7 @@ const expenseSchema = new Schema<ExpenseDoc>({
   date: { type: Date, required: true, default: Date.now, index: true },
   createdAt: { type: Date, default: Date.now },
   deletedAt: { type: Date },
+  recurringId: { type: Schema.Types.ObjectId, ref: 'Recurring', index: true },
 });
 
 export const Expense = model<ExpenseDoc>('Expense', expenseSchema);

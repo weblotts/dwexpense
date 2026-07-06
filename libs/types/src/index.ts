@@ -74,6 +74,7 @@ export interface Expense {
   date: string;
   createdAt: string;
   deletedAt?: string;
+  recurringId?: string | { _id: string; serviceName?: string; frequency?: string };
 }
 
 export interface CreateExpenseInput {
