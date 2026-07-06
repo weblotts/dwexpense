@@ -44,7 +44,7 @@ export function AiChat() {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:scale-105"
+          className="fixed bottom-20 right-4 z-50 flex items-center gap-2 rounded-full px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:scale-105 sm:bottom-6 sm:right-6"
           style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)' }}
         >
           <Sparkles size={16} />
@@ -52,13 +52,15 @@ export function AiChat() {
         </button>
       )}
 
-      {/* Chat panel */}
+      {/* Chat panel — full-screen bottom sheet on mobile, floating panel on sm+ */}
       {open && (
         <div
-          className="fixed bottom-6 right-6 z-50 flex flex-col rounded-2xl shadow-2xl overflow-hidden"
+          className="
+            fixed z-50 flex flex-col overflow-hidden shadow-2xl
+            bottom-0 left-0 right-0 h-[92dvh] rounded-t-2xl
+            sm:bottom-6 sm:right-6 sm:left-auto sm:w-[420px] sm:h-[600px] sm:rounded-2xl
+          "
           style={{
-            width: '420px',
-            maxHeight: '600px',
             background: '#0f172a',
             border: '1px solid rgba(255,255,255,0.1)',
           }}
@@ -125,7 +127,7 @@ export function AiChat() {
                   </div>
                 )}
                 <div
-                  className="max-w-[80%] rounded-2xl px-3 py-2 text-xs leading-relaxed"
+                  className={`rounded-2xl px-3 py-2 text-xs leading-relaxed ${msg.role === 'user' ? 'max-w-[80%]' : 'max-w-full'}`}
                   style={
                     msg.role === 'user'
                       ? { background: 'linear-gradient(135deg, #3b82f6, #6366f1)', color: 'white' }
