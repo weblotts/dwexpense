@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Bot, Send, X, RefreshCw, Sparkles } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { useAiChat } from '../hooks/useAiChat';
 
 const SUGGESTIONS = [
@@ -56,8 +57,8 @@ export function AiChat() {
         <div
           className="fixed bottom-6 right-6 z-50 flex flex-col rounded-2xl shadow-2xl overflow-hidden"
           style={{
-            width: '360px',
-            maxHeight: '560px',
+            width: '420px',
+            maxHeight: '600px',
             background: '#0f172a',
             border: '1px solid rgba(255,255,255,0.1)',
           }}
@@ -131,13 +132,50 @@ export function AiChat() {
                       : { background: 'rgba(255,255,255,0.06)', color: 'rgba(226,232,240,0.9)', border: '1px solid rgba(255,255,255,0.07)' }
                   }
                 >
-                  {msg.content || (streaming && i === messages.length - 1 ? (
+                  {streaming && i === messages.length - 1 && !msg.content ? (
                     <span className="inline-flex gap-1">
                       <span className="animate-bounce" style={{ animationDelay: '0ms' }}>·</span>
                       <span className="animate-bounce" style={{ animationDelay: '150ms' }}>·</span>
                       <span className="animate-bounce" style={{ animationDelay: '300ms' }}>·</span>
                     </span>
-                  ) : '')}
+                  ) : msg.role === 'assistant' ? (
+                    <ReactMarkdown
+                      components={{
+                        p: ({ children }) => <p className="mb-1.5 last:mb-0">{children}</p>,
+                        h3: ({ children }) => <h3 className="font-semibold text-white mt-2 mb-1">{children}</h3>,
+                        h4: ({ children }) => <h4 className="font-semibold text-slate-200 mt-1.5 mb-0.5">{children}</h4>,
+                        ul: ({ children }) => <ul className="list-disc pl-4 mb-1.5 space-y-0.5">{children}</ul>,
+                        ol: ({ children }) => <ol className="list-decimal pl-4 mb-1.5 space-y-0.5">{children}</ol>,
+                        li: ({ children }) => <li>{children}</li>,
+                        strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
+                        table: ({ children }) => (
+                          <div className="my-2 overflow-x-auto rounded-lg" style={{ border: '1px solid rgba(255,255,255,0.12)' }}>
+                            <table className="w-full text-xs border-collapse">{children}</table>
+                          </div>
+                        ),
+                        thead: ({ children }) => <thead style={{ background: 'rgba(59,130,246,0.15)' }}>{children}</thead>,
+                        th: ({ children }) => (
+                          <th className="px-3 py-1.5 text-left font-semibold text-slate-200" style={{ borderBottom: '1px solid rgba(255,255,255,0.12)' }}>
+                            {children}
+                          </th>
+                        ),
+                        td: ({ children }) => (
+                          <td className="px-3 py-1.5 text-slate-300" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                            {children}
+                          </td>
+                        ),
+                        tr: ({ children }) => <tr className="hover:bg-white/5 transition-colors">{children}</tr>,
+                        code: ({ children }) => (
+                          <code className="rounded px-1 py-0.5 text-xs font-mono text-blue-300" style={{ background: 'rgba(59,130,246,0.15)' }}>
+                            {children}
+                          </code>
+                        ),
+                        hr: () => <hr className="my-2" style={{ borderColor: 'rgba(255,255,255,0.1)' }} />,
+                      }}
+                    >
+                      {msg.content}
+                    </ReactMarkdown>
+                  ) : msg.content}
                 </div>
               </div>
             ))}
