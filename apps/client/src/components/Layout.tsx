@@ -156,7 +156,7 @@ export function Layout({ children }: { children: ReactNode }) {
       </main>
 
       {/* AI Chat floating assistant */}
-      {user && <AiChat />}
+      {user && ['/', '/history', '/reports', '/shopping', '/recurring', '/savings-goals'].some(p => pathname === p || pathname.startsWith(p + '/')) && <AiChat />}
 
       {/* Mobile bottom nav */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 flex border-t md:hidden"
