@@ -290,6 +290,9 @@ export interface TopExpenseItem {
 export interface ShoppingList {
   _id: string;
   name: string;
+  bucketId?: string;
+  pinned: boolean;
+  convertedExpenseId?: string;
   createdAt: string;
 }
 
@@ -302,11 +305,22 @@ export interface ShoppingItem {
   quantity: number;
   checked: boolean;
   checkedAt?: string;
+  order: number;
   createdAt: string;
 }
 
 export interface CreateShoppingListInput {
   name: string;
+  bucketId?: string;
+}
+
+export interface UpdateShoppingListInput {
+  pinned?: boolean;
+}
+
+export interface ConvertShoppingListInput {
+  amount: number;
+  date?: string;
 }
 
 export interface CreateShoppingItemInput {
@@ -321,6 +335,22 @@ export interface UpdateShoppingItemInput {
   estimatedPrice?: number;
   bucketId?: string;
   quantity?: number;
+}
+
+export interface ReorderShoppingItemsInput {
+  /** Item ids in the desired display order. */
+  itemIds: string[];
+}
+
+/** Aggregated purchase-frequency stats for a normalized item name. */
+export interface ShoppingItemFrequency {
+  name: string;
+  timesBought: number;
+  totalQuantity: number;
+  totalSpent: number;
+  lastBoughtAt?: string;
+  bucketName?: string;
+  bucketColor?: string;
 }
 
 export interface CheckShoppingItemInput {

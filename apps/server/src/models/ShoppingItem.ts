@@ -9,6 +9,7 @@ export interface ShoppingItemDoc extends Document<Types.ObjectId> {
   quantity: number;
   checked: boolean;
   checkedAt?: Date;
+  order: number;
   createdAt: Date;
 }
 
@@ -21,6 +22,7 @@ const shoppingItemSchema = new Schema<ShoppingItemDoc>({
   quantity: { type: Number, default: 1, min: 1 },
   checked: { type: Boolean, default: false },
   checkedAt: { type: Date },
+  order: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
 });
 
